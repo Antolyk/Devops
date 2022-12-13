@@ -1,5 +1,5 @@
 # Devops
-DockerHub repo - https://hub.docker.com/repository/docker/antolyk/node_app
+DockerHub repository - <https://hub.docker.com/repository/docker/antolyk/node_app>
 
 Build an image:
 docker build -t antolyk/node_app .
