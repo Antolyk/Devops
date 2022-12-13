@@ -1,10 +1,15 @@
-name: Lint Code Base
+name: Docker Image CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
 
 jobs:
-  lintcode:
-    name: Lint Code Base
+
+  lint-code:
+
     runs-on: ubuntu-latest
 
     steps:
@@ -19,7 +24,11 @@ jobs:
         env:
           VALIDATE_ALL_CODEBASE: true
           GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
-  build:
+        
+        
+  build-and-push-docker:
+  
+    needs: lint-code
 
     runs-on: ubuntu-latest
 
@@ -41,10 +50,15 @@ jobs:
       uses: docker/build-push-action@v3
       with:
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/my_app:latest
-        
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/node_image:latest
+
+
   test-docker-image:
+
+    needs: build-and-push-docker
+
     runs-on: ubuntu-latest
+
     steps:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -56,13 +70,13 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Pull Docker image
-        run: docker pull ${{ secrets.DOCKERHUB_USERNAME }}/my_app:latest
+        run: docker pull ${{ secrets.DOCKERHUB_USERNAME }}/node_image:latest
 
       - name: Create Docker Network
-        run: docker network create app
+        run: docker network create net
 
       - name: Run Docker image
-        run: docker run --network app --network-alias app -p 80:80 -d ${{ secrets.DOCKERHUB_USERNAME }}/my_app
+        run: docker run --network net --network-alias app -p 80:80 -d ${{ secrets.DOCKERHUB_USERNAME }}/node_image
 
       - name: Wait for application start
         run: docker run --network app willwill/wait-for-it app:80 -t 10 -s -- echo "App is running"
