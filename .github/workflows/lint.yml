@@ -52,7 +52,6 @@ jobs:
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/node_image:latest
 
-
   test-docker-image:
 
     needs: build-and-push-docker
