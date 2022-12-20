@@ -30,7 +30,7 @@ spec:
     spec:
       containers:
       - name: devops-lab
-        image: jedich/devops-fundamentals-docker
+        image: antolyk/node_app
         livenessProbe:
           httpGet:
             path: /healthz
